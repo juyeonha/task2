@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:task2/project_list_page.dart';
+
 import 'package:task2/join_page.dart';
 //플루터는 widge으로 앱의 화면을 구성한다.
 
@@ -20,37 +22,25 @@ class MyApp extends StatelessWidget{
       theme: ThemeData(
         primaryColor: Color.fromRGBO(58, 66, 86, 1.0), //앱바 컬러색깔
       ),
-     home: ProjectListPage(),
+      home: ProjectListPage(),
       onGenerateRoute: onGenerateRoute,
       );
     }
-
-
-
-
    static Route <dynamic> onGenerateRoute(RouteSettings settings) {
-
-     /*
-      * onGenerateRoute: 앱이 이름이 부여된 라우트를 네비게이팅할 때 호출됨. RouteSettings 가 전달됨
-      * RouteSettings: 다음과 같은 구조를 가짐
-      * const RouteSettings({
-         String name,  // 라우터 이름
-         bool isInitialRoute: false, // 초기 라우터인지 여부
-         Object arguments  // 파라미터
-         })
-      */
+    //onGenerateRoute: 앱이 이름이 부여된 라우트를 네비게이팅할 때 호출됨. RouteSettings 가 전달됨
 
      final parts =settings.name.split('?');
      final args =parts.length == 2 ? Uri.splitQueryString(parts[1]) :null;
      switch (parts[0]){
-       case '/join':
-         // return MaterialPageRoute(settings: settings, builder: (_)=> JoinPage());
-       // case '/work':
-       //   return MaterialPageRoute
+       // case '/join':
+       //   return MaterialPageRoute(settings: settings, builder: (_)=> JoinPage());
+
      }
 
   }
 }
+
+
 
 
 

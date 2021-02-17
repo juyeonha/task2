@@ -31,9 +31,10 @@ class MyApp extends StatelessWidget{
 
      final parts =settings.name.split('?');
      final args =parts.length == 2 ? Uri.splitQueryString(parts[1]) :null;
+     String errorMessage ='없는 경로이거나 필수 파라미터가 없습니다.';
      switch (parts[0]){
        // case '/join':
-       //   return MaterialPageRoute(settings: settings, builder: (_)=> JoinPage());
+       // return MaterialPageRoute(settings: settings, builder: (_)=> JoinPage());
 
      }
 

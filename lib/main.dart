@@ -18,18 +18,19 @@ class MyApp extends StatelessWidget{
     return MaterialApp(
       //MaterialApp은 Theme(테마)와 Route(이동)을 담당
       //Text 위젯 , Dropdown 버튼  위젯 , AppBar 위젯 , Scaffold 위젯 , ListView 위젯 , StatelessWidget , StatefulWidget , IconButton 위젯 , TextField 위젯 , Padding 위젯 , ThemeData 위젯
-    title:'WinWin Kanban', //appbar 에 보여지는 타이
+    title:'WinWin Kanban',
       theme: ThemeData(
-        primaryColor: Color.fromRGBO(58, 66, 86, 1.0), //앱바 컬러색깔
+        primaryColor: Color.fromRGBO(222, 66, 86, 1.0), //앱바 컬러색깔
       ),
       home: ProjectListPage(),
       onGenerateRoute: onGenerateRoute,
       );
     }
    static Route <dynamic> onGenerateRoute(RouteSettings settings) {
-    //onGenerateRoute: 앱이 이름이 부여된 라우트를 네비게이팅할 때 호출됨. RouteSettings 가 전달됨
-
+    //onGenerateRoute: 앱이 이름이 부여된 라우트를   네비게이팅할 때 호출됨. RouteSettings 가 전달됨
+    //dynamic 동적 객체
      final parts =settings.name.split('?');
+     print(parts);
      final args =parts.length == 2 ? Uri.splitQueryString(parts[1]) :null;
      String errorMessage ='없는 경로이거나 필수 파라미터가 없습니다.';
      switch (parts[0]){

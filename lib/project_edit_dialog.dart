@@ -32,11 +32,8 @@ class _ProjectEditDialogState extends State<ProjectEditDialog> with WidgetsBindi
 
   void initState() {
     super.initState();
-    //바인딩이라는 게 팝업 느낌...??????????????
-    WidgetsBinding.instance.addObserver(
-        this); //addObserver : 지정된 개체를 바인딩 관찰자로 등록 , 바인딩 관찰자는 이벤트가 있으면 알림을 받는다.
-    WidgetsBinding.instance.addPostFrameCallback((
-        _) { //addPostFrameCallback : 새프레임을 요청하지 않습니다.
+    WidgetsBinding.instance.addObserver(this); //addObserver : 지정된 개체를 바인딩 관찰자로 등록 , 바인딩 관찰자는 이벤트가 있으면 알림을 받는다.
+    WidgetsBinding.instance.addPostFrameCallback((_) { //addPostFrameCallback : 새프레임을 요청하지 않습니다.
       if (widget.edtiType == 'edit') {
         _tecName.text = widget.item.title;
         _tecMemo.text = widget.item.memo;
@@ -56,7 +53,8 @@ class _ProjectEditDialogState extends State<ProjectEditDialog> with WidgetsBindi
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: Colors.white,
-        appBar: _buildAppbar(context), body: _buildBody(context)
+        appBar: _buildAppbar(context),
+        body: _buildBody(context)
     );
   }
 
@@ -72,7 +70,7 @@ class _ProjectEditDialogState extends State<ProjectEditDialog> with WidgetsBindi
       automaticallyImplyLeading: false,
       //행간이 true고 null경우 자동완성 , 행간이 false고 null일 경우 공백
       leading: IconButton( //행간 닫기버튼
-          icon: Icon(Icons.close, color: Colors.black),
+          icon: Icon(Icons.close, color: getColorFromHex('#37c3be')),
           tooltip: '닫기!!!!!!!!!!!!!!!!!!!!',
           onPressed: () {
             Navigator.pop(context); //닫기를 눌렀을떄 context 가 무엇을 의미 하는??
@@ -81,7 +79,7 @@ class _ProjectEditDialogState extends State<ProjectEditDialog> with WidgetsBindi
       title: Text(
           widget.edtiType == 'new' ? '새 프로젝트 생성' : '프로젝트 수정',
           style: TextStyle(
-              fontSize: 18, fontWeight: FontWeight.w700, color: Colors.white),
+              fontSize: 18, fontWeight: FontWeight.w700, color: Colors.black),
       ),
       actions: <Widget>[
       ],
@@ -97,25 +95,23 @@ class _ProjectEditDialogState extends State<ProjectEditDialog> with WidgetsBindi
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('프로젝트 이름', style: TextStyle(fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.black)),
+              Text('프로젝트 제', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.black)),
               SizedBox(height: 8),
               TextField(
-                onSubmitted: (_) { //파라미터에 _ 그냥 써주신건가요??? 여러군데 있던데 의미없는건가요?
+                onSubmitted: (_) { //유저가 보낸 tecName 과 tecMemo 받기 위한 calllback으로 onSubmitted 메서드를 구현 ,무명함수 : value값이 리턴으로 돌아와도 받지 않겠다는 뜻
                 },
                 controller: _tecName,
                 focusNode: _focusName,
                 textInputAction: TextInputAction.next,
-                maxLines: 12,
+                maxLength: 12, //글자
                 scrollPadding: EdgeInsets.all(0),
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.black),
                 decoration: InputDecoration(
-                  contentPadding: EdgeInsets.fromLTRB(16, 8, 8, 16),
+                  contentPadding: EdgeInsets.fromLTRB(16, 8, 8, 16), //이름입력 간격 16이 한칸 정도입니다.
                   border: OutlineInputBorder(
                     borderSide: BorderSide(color: getColorFromHex('#e5e5e5')),
                   ),
-                  hintText: "이름입력",
+                  hintText: "프로젝트 제목을 입력해주세요",
                   hintStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.w300, color: Colors.black),
                 ),
               ),
@@ -128,9 +124,18 @@ class _ProjectEditDialogState extends State<ProjectEditDialog> with WidgetsBindi
                 controller : _tecMemo,
                 focusNode: _focusMemo,
                 textInputAction: TextInputAction.next,
-                maxLength: 100,
+                maxLength: 100, //글자
+                maxLines: 10, //칸 널이 조정 
                 scrollPadding: EdgeInsets.all(0),
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.black),
+                decoration: InputDecoration(
+                  contentPadding: EdgeInsets.fromLTRB(16, 8, 8, 16),
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide(color : getColorFromHex('#e5e5e5'))
+                  ),
+                  hintText: '프로젝트 설명을 입력해주세요',
+                  hintStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.w300, color: getColorFromHex('#A1A7B1')),
+                ),
               ),
               SizedBox(height: 16),
               InkWell(
@@ -192,7 +197,7 @@ class _ProjectEditDialogState extends State<ProjectEditDialog> with WidgetsBindi
     //필수값 확인
     if(_tecName.text.length < 2) {
       toast('이름을 확인해주세요.');
-      _focusName.requestFocus();
+      _focusName.requestFocus(); //다시 포커스를 주겠다.
       return;
     }
 

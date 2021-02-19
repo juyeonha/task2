@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:html';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:task2/api.dart';
@@ -11,23 +10,17 @@ import 'package:task2/project_edit_dialog.dart';
 
 class ProjectListData{
 
-  List<ProjectListItem> projectList; // projectList.add(new ProjectListItem.fromJson(i));
+  List<ProjectListItem> projectList = []; // projectList.add(new ProjectListItem.fromJson(i));
 
   ProjectListData({this.projectList}); //projectList == ProjectListData
 
-  /*  "projectList": [
-    {
-    "projectNo": 125,
-    "userId": "hero",
-    "title": "Project",
-    "memo": ""
-    }]*/
-
   ProjectListData.fromJson(Map<String, dynamic> json){ //json['projectList] 사용하기 위해
     if(json['projectList']!=null){
-      json['pronejctList'].forEach((i){ //projectList반복문
-        projectList.add(new ProjectListItem.fromJson(i)); //리스트에 더해준다.
+      json['projectList'].forEach((v){ //projectList반복문
+        print(v.toString());
+        projectList.add(new ProjectListItem.fromJson(v)); //리스트에 더해준다.
       });
+
     }
   }
 
@@ -35,9 +28,10 @@ class ProjectListData{
     final Map<String,dynamic> data = new Map<String, dynamic>();
 
     if(this.projectList !=null){
-      data['projectList'] =this.projectList.map((i) =>i.toJson()).toList(); //Json형태로 변환, 보낼결과를 리스트로 변환
+      data['projectList'] =this.projectList.map((v) => v.toJson()).toList(); //Json형태로 변환, 보낼결과를 리스트로 변환
     }
     return data;
+
   }
 
 }
@@ -47,31 +41,28 @@ class ProjectListItem{
   int projectNo;
   String userId;
   String title;
-  String memo;
+  String memo= '';
 
   ProjectListItem({this.projectType, this.projectNo, this.userId, this.title, this.memo}); //constructor
 
-
-  //class안에 JSON serialization 코드를 넣어줬다. 접근할때 data['~'] 형식으로 접근할 수 있따.
   ProjectListItem.fromJson(Map<String, dynamic> json){ //json 데이터를 object로 변환
     projectType='';
     projectNo = json['projectNo'];
-    userId = json['useId'];
+    userId = json['userId'];
     title = json['title'];
     memo = json['memo'];
     if(memo == null) // 한줄 밖에 없을떄는 중괄호 안씀
       memo ='';
   }
 
+
   Map<String,dynamic> toJson(){ //object 데이터를  json으로 변환
     final Map<String ,dynamic> data =new Map<String, dynamic>();
-    data['proejctNo'] =this.projectNo;
+    data['projectNo'] =this.projectNo;
     data['userId'] = this.userId;
     data['title'] = this.title;
     data['memo'] = this.memo;
     return data;
-
-
   }
 }
 
@@ -88,6 +79,15 @@ class _ProjectListPageState extends State<ProjectListPage> {
   //실제적으로 실행되는 부분
 
   List<ProjectListItem> projectList = [];
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (window.localStorage['isLogin'] == 'true') {
+      loadProjectList();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -112,9 +112,9 @@ class _ProjectListPageState extends State<ProjectListPage> {
         //column일 때 세로축을 기준으로 왼쪽으로 정렬합니다.
         mainAxisSize: MainAxisSize.max,
         children: [
-          window.localStorage['isLogin'] == 'ture' ? _buildLogout() : _buildLogin(),
+          window.localStorage['isLogin'] == 'true' ? _buildLogout() : _buildLogin(),
           //isLogin 세션간에 공유
-          window.localStorage['isLogin'] == 'ture' ? _buildBodyProjectList() : _buildBodyEmpty(),
+          window.localStorage['isLogin'] == 'true' ? _buildBodyProjectList() : _buildBodyEmpty(),
           //window.localStorage는 Documenat출처의 Stroage객체에 접근할 수 있습니다.
         ],
       ),
@@ -126,7 +126,7 @@ class _ProjectListPageState extends State<ProjectListPage> {
     final TextEditingController _tecId = TextEditingController();
     final TextEditingController _tecPassword = TextEditingController(); // TextEditingController() 아이디와 비밀번호를 받아오기 위한 컨트롤
 
-    final FocusNode _idFcous = FocusNode();
+    final FocusNode _idFocus = FocusNode();
     final FocusNode _passwordFocus = FocusNode();
 
     return AutofillGroup(
@@ -141,11 +141,11 @@ class _ProjectListPageState extends State<ProjectListPage> {
               child: TextField( //박스안에 입력필드 만들기
                 onEditingComplete: () {
                   // onEditingComplete 완료", "이동", "보내기"또는 "검색"과 같은 완료 동작을 누르면 사용자의 콘텐츠가 컨트롤러에 제출되고 포커스가 포기됩니다.
-                  _idFcous.unfocus(); //포커스 해제
+                  _idFocus.unfocus(); //포커스 해제
                   FocusScope.of(context)
                       .requestFocus(_passwordFocus); //비밀번호로 포커스 이동
                 },
-                focusNode: _idFcous,
+                focusNode: _idFocus,
                 textInputAction: TextInputAction.next,
                 //키보드의 엔터 위치에 해당하는 기능을 next로 변경
                 scrollPadding: EdgeInsets.all(0),
@@ -221,14 +221,11 @@ class _ProjectListPageState extends State<ProjectListPage> {
                       .of(context)
                       .size
                       .width,
-                  child: Text('로그인',
-                      style: TextStyle(fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.white)),
+                  child: Text('로그인', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.white)),
                   decoration: BoxDecoration(
                     color: Colors.lightBlueAccent,
                     borderRadius: BorderRadius.all(
-                      Radius.circular(25),
+                      Radius.circular(5),
                     ),
                   ),
                 ),
@@ -242,8 +239,7 @@ class _ProjectListPageState extends State<ProjectListPage> {
               width: 100,
               child: InkWell(
                 onTap: () {
-                  Navigator.pushNamed(context,
-                      '/join'); //context에 대해서 조금은 이해가는 부분 : buildContext contextd인것  같다.
+                  Navigator.pushNamed(context, '/join'); //context에 대해서 조금은 이해가는 부분 : buildContext contextd인것  같다.
                 },
                 child: Container(
                   alignment: Alignment.center,
@@ -317,7 +313,7 @@ class _ProjectListPageState extends State<ProjectListPage> {
   Widget _buildBodyEmpty() {
     // window.localStorage['isLogin'] == 'false' 빈페이지
     return Container(
-      color: Colors.black12, // @@
+      color: Colors.black12,
     );
   }
 
@@ -328,12 +324,8 @@ class _ProjectListPageState extends State<ProjectListPage> {
     var cellWidth = 200.0; //프로젝트 셀 너비
     var _aspectRatio = 1.0; //각 하위의 주축 범위에 대한 교차 축의 비율입니다.
 
-    var _screenWidth = MediaQuery
-        .of(context)
-        .size
-        .width; //미디어쿼리를 사용한 넓이
-    var _crossAxisCount = (_screenWidth / cellWidth)
-        .floor(); // 미디어쿼리 넓이/고정된 셀 넓  floor : 소수값이 존재할 때 소수값을 버리는 역활을 하는 함수 정수로 만들어줘야하기 때문
+    var _screenWidth = MediaQuery.of(context).size.width; //미디어쿼리를 사용한 넓이
+    var _crossAxisCount = (_screenWidth / cellWidth).floor(); // 미디어쿼리 넓이/고정된 셀 넓  floor : 소수값이 존재할 때 소수값을 버리는 역활을 하는 함수 정수로 만들어줘야하기 때문
 
     return Expanded(
       child: GridView.builder( //스크롤 가능한 2D 위젯 배열입니다. 그리드의 주축 방향은 스크롤되는 방향입니다
@@ -341,11 +333,11 @@ class _ProjectListPageState extends State<ProjectListPage> {
         itemCount: projectList.length, //리스트 추가해줘야함
         gridDelegate: // 그리드의 타일 레이아웃을 계산
         SliverGridDelegateWithFixedCrossAxisCount( //맞춤 SliverGridDelegate 는 정렬되지 않거나 겹치는 배열을 포함하여 임의의 2D 자식 배열을 생성 할 수 있습니다.
-            crossAxisCount: _crossAxisCount,
-            childAspectRatio: _aspectRatio //crossAxisCount 교차축의 자식 수 (정수)  , //childAspectRatio 하위의 주축 범위에 대한 교차 축의 비율 (double)
-        ),
+            crossAxisCount: _crossAxisCount, childAspectRatio: _aspectRatio), //crossAxisCount 교차축의 자식 수 (정수)  , //childAspectRatio 하위의 주축 범위에 대한 교차 축의 비율 (double)
         itemBuilder: (context, index) {
           ProjectListItem item = projectList[index];
+
+
           return item.projectType == 'new' ? _buildNewProject(context) : _buildProjectCell(item);
         },
       ),
@@ -353,7 +345,7 @@ class _ProjectListPageState extends State<ProjectListPage> {
   }
 
 
-  Widget _buildNewProject(BuildContext context) { //
+  Widget _buildNewProject(BuildContext context) {  //projectType == new 일경우
     var cellHeight =200.0;
     var cellWidth =200.0;
 
@@ -386,17 +378,86 @@ class _ProjectListPageState extends State<ProjectListPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text('새프로젝트 생성', style:TextStyle(fontSize: 16,fontWeight: FontWeight.w700, color: Colors.white),)
+            Text('새프로젝트 생성', style:TextStyle(fontSize: 16,fontWeight: FontWeight.w700, color: Colors.white)),
           ],
         )
       ),
+    );
+  }
+  Widget _buildProjectCell(ProjectListItem item){ //projectType new가 아닐 경우 리스트에 보이는 셀
+    var cellHeight =200.0;
+    var cellWidth = 200.0;
+
+    return InkWell(
+      onTap: (){
+        Navigator.pushNamed(context,'/work?projectNo='+item.projectNo.toString()); //이름을 통한 라우터간 이동
+        /*
+          onTap(){
+            Navigator.push(context, MeterialPageRoute(builder:(context) => WorkPage()),);
+                이 방식을 안쓰는 이유는 첫번째 라우터 버튼을 누를때 빌더를 통해 WorkPage가 생성되어 호출된다.만약 앱의 여러 부분에서
+                위의 코드가 실행된다면 복수 메모리에 올라가게 되어 메모리낭비나 일관성이 꺠진다. 그래서 라우트 테이블에 라우트들을 경로형태의 이름으로 선언하고
+                싱클톤 형태로 실행된다는 것으로 이해
+                }
+
+         */
+      },
+      child:Container(
+        width: cellWidth,
+        height: cellHeight,
+        padding: EdgeInsets.all(16),
+        margin: EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color:Colors.blue,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(10),
+            topRight: Radius.circular(10),
+            bottomRight: Radius.circular(10),
+            bottomLeft: Radius.circular(10),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.9),
+              blurRadius: 4,
+              offset:Offset(0,3),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children:[
+                Flexible(child: Text(item.title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.white))),
+                //브라우저 창이 늘어나도 폰트사이즈 16로 주겠다.
+                Visibility(
+                  visible: window.localStorage['userId'] ==item.userId, //현재 userId의 값만 보여주겠다???
+                  child: Expanded(
+                    child: Container(
+                      alignment: Alignment.topRight, //어디 꾸미는 건지 제 생각하는건 셀의 제목인데 안바껴요 ㅠ
+                      child: projectPopup(item),
+
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 8),
+            Divider(height: 1,thickness: 1, color: Colors.white), //name과 memo를 구분해주는 선일까?
+            SizedBox(height: 8),
+            Text(item.memo , style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white)),
+            Expanded(child: Container()),
+            Text(item.userId, style:TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
+          ],
+        ),
+      )
     );
   }
 
   Widget _showEditDialog(BuildContext context,String editType,ProjectListItem item){
     showDialog(
       barrierDismissible: true,
-      context: context, //context를 파라미터로 보내고 가져오는게 전체위젯을 포함한다는 말인가요? 아님 뼈대?
+      context: context, //context 허가증같은거
       builder: (BuildContext context){
         return WillPopScope(
           onWillPop: (){
@@ -408,15 +469,13 @@ class _ProjectListPageState extends State<ProjectListPage> {
           ),
         );
       }
-    );
+    ).then((val){
+      if (val == 'REFRESH'){ //PorjectEditDialog 페이지에서 완성이되면 loadProejctList페이지를 다시 리로드 해주겠다.
+        loadProjectList();
+      }
+    });
 
   }
-
-
-
-
-
-
 
   Future<void> login(String id, password) async {
     // login(_tecId.text, _tecPassword.text);
@@ -464,17 +523,21 @@ class _ProjectListPageState extends State<ProjectListPage> {
       //ProjectListData로 타고 들어가보면 projectListData가 projectList인것을 알 수있습니다.
     projectList.clear();
     projectList.add(ProjectListItem(projectType: 'new'));
-
     projectList.addAll(data.projectList);
 
     for(ProjectListItem item in data.projectList){ //projectList에 들어있는 값들을 ProjectListItme 변수에 맡게 할당
       print(item.toJson().toString()); //{projectNo: 137, userId: gaebal, title: 한글 프로젝트, memo: 잘 생성되었나요?}
-    }
 
+    }
+    //로딩 페이지 만들기 시간을 좀 줘서 만들기
     setState(() {
-      //비어있는 함수를 꼭 써야하나요?
+
     });
   }
+
+
+
+
 
   void editProject(){
     //수정페이지 아직 안만들었다.
@@ -482,6 +545,9 @@ class _ProjectListPageState extends State<ProjectListPage> {
 
 
 }
+
+
+
 
 
 

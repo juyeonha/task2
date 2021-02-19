@@ -39,16 +39,10 @@ class MyApp extends StatelessWidget{
          return MaterialPageRoute(settings : settings, builder: (_)  => JoinPage());
        case '/work':
          if(args!=null&& args.containsKey('projectNo')){
-           return MaterialPageRoute(builder: (_) =>WorkPage(int.parse(args['projectNo'])));
+           print(args.toString());
+           return MaterialPageRoute(builder: (_) => WorkPage(int.parse(args['projectNo'])));
          }
          return MaterialPageRoute(builder: (_)=>Four04Page(errorMessage));
-
-
-
-
-
-
-
      }
 
   }

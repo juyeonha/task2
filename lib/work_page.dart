@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
 
-
-
 class WorkPage extends StatefulWidget {
-  WorkPage(projectNo);
-  //final int projectNo;
-
-
+  final int projectNo;
+  WorkPage(this.projectNo);
 
   @override
   _WorkPageState createState() => _WorkPageState();
@@ -33,26 +29,26 @@ class _WorkPageState extends State<WorkPage> {
 
   Widget _buildBody() {
     return Container(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: ReorderableListView(
-                onReorder: (onIndex, newIndex) {
-                  setState(() {
-                    // _updateWorkItems(oldIndex, newIndex);
-                  });
-                },
-                scrollDirection: Axis.horizontal,
-                // children: [
-                //   for(WorkListItem item in workList)
-                // ],
-
-              ),
-            )
-          ],
-        )
+        // child: Column(
+        //   mainAxisAlignment: MainAxisAlignment.start,
+        //   crossAxisAlignment: CrossAxisAlignment.start,
+        //   children: [
+        //     Expanded(
+        //       child: ReorderableListView(
+        //         onReorder: (onIndex, newIndex) {
+        //           setState(() {
+        //             // _updateWorkItems(oldIndex, newIndex);
+        //           });
+        //         },
+        //         scrollDirection: Axis.horizontal,
+        //         // children: [
+        //         //   for(WorkListItem item in workList)
+        //         // ],
+        //
+        //       ),
+        //     )
+        //   ],
+        // )
     );
   }
 }

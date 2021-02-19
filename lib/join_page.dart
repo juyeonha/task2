@@ -9,6 +9,8 @@ class JoinPage extends StatefulWidget {
 class _JoinPageState extends State<JoinPage> {
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return Container(
+      child: Text('회원가입'),
+    );
   }
 }

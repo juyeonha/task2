@@ -76,8 +76,10 @@ class ProjectListPage extends StatefulWidget {
 }
 
 class _ProjectListPageState extends State<ProjectListPage> {
-  //실제적으로 실행되는 부분
+  bool loading = true;
 
+  //실제적으로 실행되는 부분
+  int testCount = 0;
   List<ProjectListItem> projectList = [];
 
   @override
@@ -87,6 +89,8 @@ class _ProjectListPageState extends State<ProjectListPage> {
     if (window.localStorage['isLogin'] == 'true') {
       loadProjectList();
     }
+
+
   }
 
   @override
@@ -102,7 +106,14 @@ class _ProjectListPageState extends State<ProjectListPage> {
     );
   }
 
+  Widget _buildLoading() {
+
+    return Center(child: Text('노동중..'));
+  }
+
   Widget _buildBody() {
+    print('_buildBody');
+
     return Container(
       color: Colors.white,
       child: Column(
@@ -113,8 +124,9 @@ class _ProjectListPageState extends State<ProjectListPage> {
         mainAxisSize: MainAxisSize.max,
         children: [
           window.localStorage['isLogin'] == 'true' ? _buildLogout() : _buildLogin(),
+          Text(testCount.toString()),
           //isLogin 세션간에 공유
-          window.localStorage['isLogin'] == 'true' ? _buildBodyProjectList() : _buildBodyEmpty(),
+          loading? _buildLoading():window.localStorage['isLogin'] == 'true' ? _buildBodyProjectList() : _buildBodyEmpty(),
           //window.localStorage는 Documenat출처의 Stroage객체에 접근할 수 있습니다.
         ],
       ),
@@ -435,8 +447,7 @@ class _ProjectListPageState extends State<ProjectListPage> {
                   child: Expanded(
                     child: Container(
                       alignment: Alignment.topRight, //어디 꾸미는 건지 제 생각하는건 셀의 제목인데 안바껴요 ㅠ
-                      child: projectPopup(item),
-
+                      // child: projectPopup(item),
                     ),
                   ),
                 ),
@@ -511,6 +522,9 @@ class _ProjectListPageState extends State<ProjectListPage> {
   }
 
   Future<void> loadProjectList() async {
+    print('loadProjectList s');
+    loading = true;
+    setState(() { });
     // 값을 돌려주지 않습니다.  비동기
     String url = 'https://bq04eukeic.execute-api.ap-northeast-2.amazonaws.com/live/projectlist';
 
@@ -529,10 +543,11 @@ class _ProjectListPageState extends State<ProjectListPage> {
       print(item.toJson().toString()); //{projectNo: 137, userId: gaebal, title: 한글 프로젝트, memo: 잘 생성되었나요?}
 
     }
-    //로딩 페이지 만들기 시간을 좀 줘서 만들기
-    setState(() {
+    print('loadProjectList e');
+    loading = false;
 
-    });
+    //로딩 페이지 만들기 시간을 좀 줘서 만들기
+    setState(() { });
   }
 
 

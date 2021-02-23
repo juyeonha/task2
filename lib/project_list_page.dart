@@ -79,7 +79,6 @@ class _ProjectListPageState extends State<ProjectListPage> {
   bool loading = true;
 
   //실제적으로 실행되는 부분
-  int testCount = 0;
   List<ProjectListItem> projectList = [];
 
   @override
@@ -105,12 +104,6 @@ class _ProjectListPageState extends State<ProjectListPage> {
     return AppBar(centerTitle: true, title: Text('Hero Task') // @@
     );
   }
-
-  Widget _buildLoading() {
-
-    return Center(child: Text('노동중..'));
-  }
-
   Widget _buildBody() {
     print('_buildBody');
 
@@ -124,9 +117,8 @@ class _ProjectListPageState extends State<ProjectListPage> {
         mainAxisSize: MainAxisSize.max,
         children: [
           window.localStorage['isLogin'] == 'true' ? _buildLogout() : _buildLogin(),
-          Text(testCount.toString()),
           //isLogin 세션간에 공유
-          loading? _buildLoading():window.localStorage['isLogin'] == 'true' ? _buildBodyProjectList() : _buildBodyEmpty(),
+          window.localStorage['isLogin'] == 'true' ? _buildBodyProjectList() : _buildBodyEmpty(),
           //window.localStorage는 Documenat출처의 Stroage객체에 접근할 수 있습니다.
         ],
       ),
@@ -408,9 +400,7 @@ class _ProjectListPageState extends State<ProjectListPage> {
             Navigator.push(context, MeterialPageRoute(builder:(context) => WorkPage()),);
                 이 방식을 안쓰는 이유는 첫번째 라우터 버튼을 누를때 빌더를 통해 WorkPage가 생성되어 호출된다.만약 앱의 여러 부분에서
                 위의 코드가 실행된다면 복수 메모리에 올라가게 되어 메모리낭비나 일관성이 꺠진다. 그래서 라우트 테이블에 라우트들을 경로형태의 이름으로 선언하고
-                싱클톤 형태로 실행된다는 것으로 이해
-                }
-
+                싱클톤 형태로 실행된다는 것으로 이해}
          */
       },
       child:Container(
@@ -446,8 +436,8 @@ class _ProjectListPageState extends State<ProjectListPage> {
                   visible: window.localStorage['userId'] ==item.userId, //현재 userId의 값만 보여주겠다???
                   child: Expanded(
                     child: Container(
-                      alignment: Alignment.topRight, //어디 꾸미는 건지 제 생각하는건 셀의 제목인데 안바껴요 ㅠ
-                      // child: projectPopup(item),
+                      alignment: Alignment.topRight,
+                      child: _projectPopup(item),
                     ),
                   ),
                 ),
@@ -505,12 +495,12 @@ class _ProjectListPageState extends State<ProjectListPage> {
       var userJson = jsonDecode(window.localStorage['user']);
       window.localStorage['userId'] = userJson['userId'].toString();
       window.localStorage['username'] = userJson['username'].toString();
-      window.localStorage['exp'] = userJson['exp'].toString(); //exp 가 뭔가요??
-
+      window.localStorage['exp'] = userJson['exp'].toString();
 
       setState(() {
         window.localStorage['isLogin'] = 'true';
       });
+
 
       loadProjectList();
 
@@ -522,9 +512,6 @@ class _ProjectListPageState extends State<ProjectListPage> {
   }
 
   Future<void> loadProjectList() async {
-    print('loadProjectList s');
-    loading = true;
-    setState(() { });
     // 값을 돌려주지 않습니다.  비동기
     String url = 'https://bq04eukeic.execute-api.ap-northeast-2.amazonaws.com/live/projectlist';
 
@@ -543,27 +530,80 @@ class _ProjectListPageState extends State<ProjectListPage> {
       print(item.toJson().toString()); //{projectNo: 137, userId: gaebal, title: 한글 프로젝트, memo: 잘 생성되었나요?}
 
     }
-    print('loadProjectList e');
-    loading = false;
 
-    //로딩 페이지 만들기 시간을 좀 줘서 만들기
     setState(() { });
+ }
+
+  void editProject(){}
+
+  Future<void> deleteProject(ProjectListItem item) async {
+    String url = 'https://bq04eukeic.execute-api.ap-northeast-2.amazonaws.com/live/project';
+    url = url + '?projectNo=' + item.projectNo.toString();
+    var header = {
+      'Authorization': window.localStorage['token']
+    };
+
+    var res = await Api().delete(url, headers: header);
+    if (res.statusCode == 200) {
+      loadProjectList();
+    }
+
+    setState(() {
+
+    });
   }
 
-
-
-
-
-  void editProject(){
-    //수정페이지 아직 안만들었다.
-  }
-
-
+  Widget _projectPopup(ProjectListItem item) =>
+      PopupMenuButton<int>(
+        icon: Icon(Icons.more_vert, size: 18, color: Colors.white),
+        onSelected: (value) async {
+          if (value == 1) {
+            //수정하기 화면으로 이동
+            _showEditDialog(context, 'edit', item);
+          } else if (value == 2) {
+            //정말로 삭제할것인가?
+            showDialog<void>(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  title: Text(item.title + ' 삭제'),
+                  content: Text('정말로 삭제하시겠습니까?'),
+                  actions: <Widget>[
+                    FlatButton(
+                      child: Text('취소'),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                    FlatButton(
+                      child: Text('삭제하기' , style: TextStyle(color: Colors.black)),
+                      onPressed: () {
+                        deleteProject(item).then((value) {
+                          loadProjectList().then((value) {
+                            Navigator.pop(context);
+                          });
+                        });
+                      },
+                    )
+                  ],
+                );
+              },
+            );
+          }
+        },
+        itemBuilder: (context) =>
+        [
+          PopupMenuItem(
+            value: 1,
+            child: Text("수정하기", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.black)),
+          ),
+          PopupMenuItem(
+            value: 2,
+            child: Text("삭제하기", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.black)),
+          ),
+        ],
+      );
 }
-
-
-
-
 
 
 

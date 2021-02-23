@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:html';
 import 'package:flutter/material.dart';
 import 'package:task2/api.dart';
-
+import 'package:task2/work_addcard_dialog.dart';
 class WorkListData {
   List<WorkListItem> workList;
 
@@ -25,13 +25,10 @@ class WorkListData {
     return data;
   }
 }
-
-
-
 class WorkListItem{
-  int projectNo; //프로젝트번
-  int workNo; //
-  String workTitle; //ex)해야할일, 진행중,완
+  int projectNo;
+  int workNo;
+  String workTitle; //ex)해야할일, 진행중,완료
   String createDate;
   int workOrder;
   List<CardListItem> cardList;
@@ -113,9 +110,11 @@ class WorkPage extends StatefulWidget {
 }
 
 class _WorkPageState extends State<WorkPage> {
-
   String title = '';
   List<WorkListItem> workList = [];
+  WorkListItem item;
+
+
 
   bool isDrag =false;
 
@@ -125,10 +124,10 @@ class _WorkPageState extends State<WorkPage> {
     }
   }
 
-  void removeTargetCard(){ // ??
+  void removeTargetCard(){
     for(WorkListItem workItem in workList){
       workItem.cardList.removeWhere((element)=> element.cardType =='target'?true:false);
-      //removeWhere workList 목록에서 충족하는 모든 개체를 제거합니다.  //카드타입이 타겟인것을 삭제한다. 근데 true,false는 왜...??
+      //removeWhere workList 목록에서 충족하는 모든 개체를 제거합니다.
       /* List<String> numbers = ['one', 'two', 'three', 'four'];
       numbers.removeWhere((item) => item.length == 3);
       numbers.join(', '); // 'three, four'*/
@@ -162,7 +161,23 @@ class _WorkPageState extends State<WorkPage> {
     return AppBar(
       centerTitle: true,
       title: Text('프로젝트'),
-    );
+      actions: <Widget>[
+        IconButton(
+          icon:Icon(Icons.add),
+          onPressed: (){
+            _addCardDialog(context,null); //리스트는 파라마ㅣ
+          },
+        ),
+        IconButton(
+          icon:Icon(Icons.delete),
+          onPressed: (){
+
+          },
+        ),
+      ],
+
+
+      );
   }
 
 
@@ -197,7 +212,6 @@ class _WorkPageState extends State<WorkPage> {
       alignment: Alignment.topLeft,
       key: ValueKey(item),
       width: 200,
-      height: 700,
       margin: EdgeInsets.all(16),
       padding: EdgeInsets.all(16),
       color: Colors.blueAccent,
@@ -219,10 +233,10 @@ class _WorkPageState extends State<WorkPage> {
   }
 
 
-  Widget _buildCardList(WorkListItem workitem) { //리스트 목록
-    List<Widget> cardList = []; //빈  cardList를 가져오겠다.  //List<Widget>...?
+  Widget _buildCardList(WorkListItem workItem) { //리스트 목록
+    List<Widget> cardList = [];
 
-    for(CardListItem card in workitem.cardList){
+    for(CardListItem card in workItem.cardList){
       if(card.cardType =='target'){ //드래그하려고 잡았을경우 cardType이 target이 된다.
         cardList.add(DragTarget<CardListItem>(
           builder: (context, candidateData,rejectDate){
@@ -355,6 +369,7 @@ class _WorkPageState extends State<WorkPage> {
 
   void _updateCardItems(CardListItem item, int workNo, int cardOrder) {
     //삭제한다.
+
     for(WorkListItem workItem in workList) {
       workItem.cardList.remove(item);
     }
@@ -421,7 +436,7 @@ class _WorkPageState extends State<WorkPage> {
 
 
   Future<void> workOrder(int projectNo, int workNo, int index) async { //put
-    //return 값없어도 된다. 저장 업데이트?
+    //
     String url ='https://bq04eukeic.execute-api.ap-northeast-2.amazonaws.com/live/work';
     var header ={
       'Authorization' : window.localStorage['token']
@@ -433,7 +448,38 @@ class _WorkPageState extends State<WorkPage> {
       'workOrder': index.toString(),
     };
     var res= await Api().put(url,headers:header,body:body);
+
+
+    setState(() {
+      loadWorkList();
+    });
+
   }
+
+  void _addCardDialog(BuildContext context,WorkListItem item){
+    showDialog(
+      barrierDismissible: true, //모달 장벽을 탭하여이 경로를 닫을 수 있는지 여부.
+        context: context,
+      builder: (BuildContext context){
+        return WillPopScope( //취소키 방지
+          onWillPop: (){
+            return Future.value(true);
+          },
+          child: AddCardDialog(
+            item: item,
+
+          ),
+        );
+      }
+    ).then((val){
+      if (val == 'REFRESH'){ //PorjectEditDialog 페이지에서 완성이되면 loadProejctList페이지를 다시 리로드 해주겠다.
+        loadWorkList();
+      }
+    });
+
+  }
+
+
 
 }
 

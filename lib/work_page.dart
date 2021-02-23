@@ -104,12 +104,14 @@ class WorkPage extends StatefulWidget {
   WorkPage(this.projectNo);
   final int projectNo;
 
+
   @override
   _WorkPageState createState() => _WorkPageState();
 
 }
 
 class _WorkPageState extends State<WorkPage> {
+
   String title = '';
   List<WorkListItem> workList = [];
   WorkListItem item;
@@ -158,6 +160,7 @@ class _WorkPageState extends State<WorkPage> {
 
 
   Widget _buildAppbar() {
+
     return AppBar(
       centerTitle: true,
       title: Text('프로젝트'),

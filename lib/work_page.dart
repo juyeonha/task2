@@ -98,8 +98,6 @@ class CardListItem{
   }
 }
 
-
-
 class WorkPage extends StatefulWidget {
   WorkPage(this.projectNo);
   final int projectNo;
@@ -113,8 +111,6 @@ class _WorkPageState extends State<WorkPage> {
   String title = '';
   List<WorkListItem> workList = [];
   WorkListItem item;
-
-
 
   bool isDrag =false;
 
@@ -165,7 +161,7 @@ class _WorkPageState extends State<WorkPage> {
         IconButton(
           icon:Icon(Icons.add),
           onPressed: (){
-            _addCardDialog(context,null); //리스트는 파라마ㅣ
+            _addCardDialog(context, widget.projectNo); //리스트는 파라마ㅣ
           },
         ),
         IconButton(
@@ -425,6 +421,7 @@ class _WorkPageState extends State<WorkPage> {
 
     var data = WorkListData.fromJson(jsonDecode(res.body));
 
+    workList.clear();
     for(WorkListItem item in data.workList) {
       workList.add(item);
     }
@@ -456,7 +453,7 @@ class _WorkPageState extends State<WorkPage> {
 
   }
 
-  void _addCardDialog(BuildContext context,WorkListItem item){
+  void _addCardDialog(BuildContext context,int projectNo){
     showDialog(
       barrierDismissible: true, //모달 장벽을 탭하여이 경로를 닫을 수 있는지 여부.
         context: context,
@@ -466,8 +463,8 @@ class _WorkPageState extends State<WorkPage> {
             return Future.value(true);
           },
           child: AddCardDialog(
-            item: item,
-
+            projectNo: projectNo,
+            workList: workList,
           ),
         );
       }

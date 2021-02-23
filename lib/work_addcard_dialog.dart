@@ -9,8 +9,9 @@ import 'package:task2/util.dart';
 import 'package:task2/work_page.dart';
 
 class AddCardDialog extends StatefulWidget {
-  AddCardDialog({this.item});
-  final WorkListItem item;
+  AddCardDialog({this.projectNo, this.workList});
+  final int projectNo;
+  final List<WorkListItem> workList;
 
 
   @override
@@ -18,6 +19,7 @@ class AddCardDialog extends StatefulWidget {
 }
 
 class _AddCardDialogState extends State<AddCardDialog>  with WidgetsBindingObserver {
+  String currentWorkNo;
 
 
   final TextEditingController _content =TextEditingController();
@@ -25,6 +27,13 @@ class _AddCardDialogState extends State<AddCardDialog>  with WidgetsBindingObser
 
 
   final FocusNode _focusContent =FocusNode();
+
+
+  @override
+  void initState() {
+    super.initState();
+    currentWorkNo = widget.workList[0].workNo.toString();
+  }
 
 
   @override
@@ -50,6 +59,10 @@ class _AddCardDialogState extends State<AddCardDialog>  with WidgetsBindingObser
 
   @override
   Widget build(BuildContext context) {
+    //widget.item.projectNo
+    //widget.item.projectNo
+
+
     return Scaffold(
       appBar: _buildAppbar(),
       body:_buildBody(),
@@ -66,7 +79,6 @@ Widget _buildAppbar() {
 }
 
 Widget _buildBody() {
-    int _value =1;
     return SingleChildScrollView(
       child: Container(
         padding: EdgeInsets.all(16),
@@ -79,16 +91,20 @@ Widget _buildBody() {
             Container(
               padding: EdgeInsets.all(8),
               child: DropdownButton(
-                value: _value,
-                items: [
-                  //workNo 151
-                  DropdownMenuItem(child: Text("First Item"),value: 1,),
-                  DropdownMenuItem(child: Text("second Item"),value: 2,),
-                  DropdownMenuItem(child: Text("third Item"),value: 3,),
-                ],
+                value: currentWorkNo,
+                items: widget.workList.map((item) {
+                  print(item.toJson().toString());
+                  return DropdownMenuItem(child: Text(item.workTitle),value: item.workNo.toString());
+                }).toList(),
+                // items: [
+                //   //workNo 151
+                //   DropdownMenuItem(child: Text("First Item"),value: 1,),
+                //   DropdownMenuItem(child: Text("second Item"),value: 2,),
+                //   DropdownMenuItem(child: Text("third Item"),value: 3,),
+                // ],
                 onChanged: (value){
                   setState(() {
-                    _value= value;
+                    currentWorkNo = value;
                   });
                 },
               ),
@@ -154,7 +170,7 @@ Widget _buildBody() {
     };
 
     var body={
-      'projectNo': widget.item.projectNo.toString(),
+      'projectNo': widget.projectNo.toString(),
       'content': _content.text,
       'workNo': '111',
     };

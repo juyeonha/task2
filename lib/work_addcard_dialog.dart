@@ -17,10 +17,9 @@ class AddCardDialog extends StatefulWidget {
   @override
   _AddCardDialogState createState() => _AddCardDialogState();
 }
-
 class _AddCardDialogState extends State<AddCardDialog>  with WidgetsBindingObserver {
-  String currentWorkNo;
 
+  String currentWorkNo;
 
   final TextEditingController _content =TextEditingController();
   final TextEditingController _workNo =TextEditingController();
@@ -85,21 +84,19 @@ Widget _buildBody() {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
-
           children: [
             Text('진행 목록 선택하세요',style:TextStyle(fontSize: 16,fontWeight: FontWeight.w500,color: getColorFromHex('#344058'))),
             Container(
-              padding: EdgeInsets.all(8),
+              padding: EdgeInsets.all(16),
               child: DropdownButton(
                 value: currentWorkNo,
                 items: widget.workList.map((item) {
-                  print(item.toJson().toString());
-                  return DropdownMenuItem(child: Text(item.workTitle),value: item.workNo.toString());
-                }).toList(),
+                  // print('@@@@@@@@@@@');
+                  // print(item.toJson().toString());
+                  return DropdownMenuItem(child: Text(item.workTitle),value: item.workNo.toString());}).toList(),
                 // items: [
-                //   //workNo 151
                 //   DropdownMenuItem(child: Text("First Item"),value: 1,),
-                //   DropdownMenuItem(child: Text("second Item"),value: 2,),
+                //   DropdownMenuI tem(child: Text("second Item"),value: 2,),
                 //   DropdownMenuItem(child: Text("third Item"),value: 3,),
                 // ],
                 onChanged: (value){
@@ -109,11 +106,8 @@ Widget _buildBody() {
                 },
               ),
 
-            ),
-
-            //셀렉트 박스 만들기 workTitle for문 돌려서 목록 띄우기
-
-
+              //버튼 박스 데코레이션 주고 싶다. 삭제 기능 주고 만들
+              ),
             Text('내용',style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: getColorFromHex('#344058'))),
             SizedBox(height: 8),
             TextField(onSubmitted: (_){
@@ -136,7 +130,7 @@ Widget _buildBody() {
             SizedBox(height: 16),
             InkWell(
               onTap: () {
-                  saveProject();
+                  _saveCard();
               },
               child: Container(
                 alignment: Alignment.center,
@@ -157,8 +151,8 @@ Widget _buildBody() {
       ),
     );
 }
-  void saveProject(){
-    if(_content.text.length<2){
+  void _saveCard(){
+    if(_content.text.length<1){
       toast('내용을 입력해주세요');
       _focusContent.requestFocus();
       return;
@@ -171,8 +165,8 @@ Widget _buildBody() {
 
     var body={
       'projectNo': widget.projectNo.toString(),
-      'content': _content.text,
-      'workNo': '111',
+      'content': _content.text.toString(),
+      'workNo': currentWorkNo.toString(),
     };
 
     print(body.toString());
@@ -181,11 +175,9 @@ Widget _buildBody() {
       print(response.statusCode);
       print(response.body);
       if(response.statusCode==200){
-       Navigator.pop(context,'REFRESH'); //중복이 생김
+       Navigator.pop(context,'REFRESH');
        // setState(() {
-       //   Navigator.pushNamed(context,'/work?projectNo='+item.projectNo.toString());
-       //
-       // });
+       // });  //써야할까 말아야할까 setState에 대해 좀더 고민하기
       }
 
     });

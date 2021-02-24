@@ -180,7 +180,7 @@ class _ProjectEditDialogState extends State<ProjectEditDialog> with WidgetsBindi
       'title': _tecName.text,
       'memo': _tecMemo.text,
     };
-
+    print('@@@@@@@@@@@@뿌엥');
     print(body.toString());
 
     Api().post(url, headers: header, body: body).then((response) {
